@@ -145,15 +145,49 @@ Include CSS & JS in your checkout page:
 
 ---
 
-## 🏗 Architecture
+#
+6. ## 🏗 Architecture
 
+flowchart LR
+  subgraph Frontend
+    A[User Checkout Page]
+    W["Payment Widget\n(initGateway)"]
+  end
 
+  subgraph Blockchain["Ethereum Network"]
+    SC["Gateway.sol\nSmart Contract"]
+  end
 
-1. **Frontend** ↔ **Widget.js** ↔ **Ethereum Gateway.sol**
-2. Widget also invokes **SEP‑31** flows against **Stellar Anchor**
-3. **Java Backend** listens to both chains, calls **AI Service**, updates order status
-4. **AI Service** returns risk score for each payment
-5. **Order Fulfillment** after successful on‑chain or fiat confirmation
+  subgraph Stellar["Stellar Network"]
+    AN["Stellar Anchor\n(SEP-31)"]
+  end
+
+  subgraph Backend
+    JB["Java Backend\n(Spring Boot)"]
+    AI["AI Service\n(FastAPI)"]
+  end
+
+  A --> W
+  W --> SC
+  W --> AN
+  SC -->|PaymentReceived| JB
+  AN -->|DepositConfirmed| JB
+  JB --> AI
+  JB -->|Order Status| A
+
+  subgraph Backend
+    JB[Java Backend<br/>(Spring Boot)]
+    AI[AI Service<br/>(FastAPI)]
+  end
+
+  A --> W
+  W --> SC
+  W --> AN
+  SC -->|PaymentReceived| JB
+  AN -->|DepositConfirmed| JB
+  JB --> AI
+  JB -->|Order Status| A
+
 
 ---
 
